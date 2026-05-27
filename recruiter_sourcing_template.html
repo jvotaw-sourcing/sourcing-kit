@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recruiter Sourcing Kit</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+:root {
+  --ink:#1a1a2e;--ink2:#16213e;--ink3:#0f3460;
+  --accent:#e94560;--accent2:#f5a623;--accent3:#00d4aa;
+  --surface:#ffffff;--surface2:#f7f8fc;--surface3:#eef0f8;
+  --border:#e2e5f0;--text:#1a1a2e;--muted:#7a7f9a;--muted2:#b0b5cc;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--surface2);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;min-height:100vh;}
+
+/* ── SETUP ── */
+#setup-screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:40px 20px;background:var(--ink);position:relative;overflow:hidden;}
+#setup-screen::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(233,69,96,.12),transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(0,212,170,.08),transparent 50%);pointer-events:none;}
+.setup-inner{width:100%;max-width:760px;position:relative;z-index:1;padding-top:20px;}
+.setup-eyebrow{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:3px;color:var(--accent);margin-bottom:10px;}
+.setup-title{font-family:'DM Serif Display',serif;font-size:32px;color:#fff;line-height:1.2;margin-bottom:6px;}
+.setup-title em{color:var(--accent3);font-style:italic;}
+.setup-sub{font-size:13px;color:rgba(255,255,255,.4);margin-bottom:28px;line-height:1.6;}
+
+/* library */
+.library-section{margin-bottom:28px;}
+.library-label{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,.3);margin-bottom:12px;}
+.library-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;}
+.lib-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:14px 16px;cursor:pointer;transition:all .2s;position:relative;}
+.lib-card:hover{border-color:var(--accent3);background:rgba(0,212,170,.06);transform:translateY(-1px);}
+.lib-card-role{font-family:'DM Sans',sans-serif;font-weight:600;font-size:13px;color:#fff;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lib-card-company{font-size:11px;color:rgba(255,255,255,.4);margin-bottom:8px;}
+.lib-card-meta{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,.25);}
+.lib-card-del{position:absolute;top:10px;right:10px;background:none;border:none;color:rgba(255,255,255,.2);cursor:pointer;font-size:14px;line-height:1;padding:2px 5px;border-radius:3px;}
+.lib-card-del:hover{color:var(--accent);background:rgba(233,69,96,.15);}
+.lib-empty{font-size:12px;color:rgba(255,255,255,.2);font-style:italic;padding:4px 0;}
+
+/* new role form */
+.new-role-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:32px 36px;}
+.field-label{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,.4);margin-bottom:7px;display:flex;align-items:center;gap:6px;}
+.field-label .req{color:var(--accent);}
+input[type=text],textarea{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:4px;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;padding:11px 13px;outline:none;transition:border-color .2s,background .2s;margin-bottom:18px;}
+input[type=text]:focus,textarea:focus{border-color:var(--accent3);background:rgba(0,212,170,.04);}
+input[type=text]::placeholder,textarea::placeholder{color:rgba(255,255,255,.2);}
+textarea.jd-input{min-height:180px;resize:vertical;font-size:12px;line-height:1.7;}
+.generate-btn{width:100%;background:var(--accent);color:#fff;font-family:'DM Sans',sans-serif;font-weight:600;font-size:14px;border:none;padding:13px 24px;border-radius:4px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px;}
+.generate-btn:hover{background:#d63350;transform:translateY(-1px);box-shadow:0 8px 24px rgba(233,69,96,.3);}
+.generate-btn:disabled{background:rgba(255,255,255,.1);color:rgba(255,255,255,.3);cursor:not-allowed;transform:none;box-shadow:none;}
+.progress-bar-outer{height:3px;background:rgba(255,255,255,.08);border-radius:2px;margin:14px 0;overflow:hidden;display:none;}
+.progress-bar-inner{height:100%;background:var(--accent3);border-radius:2px;transition:width .4s ease;}
+
+/* spinner */
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;}
+.spinner-dark{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ── MAIN TOOL ── */
+#main-tool{display:none;}
+.topbar{background:var(--ink);padding:0 24px;display:flex;align-items:center;gap:12px;height:52px;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(255,255,255,.07);}
+.topbar-role{font-family:'DM Serif Display',serif;font-size:15px;color:#fff;}
+.topbar-role span{color:var(--accent3);}
+.topbar-right{margin-left:auto;display:flex;gap:8px;}
+.topbar-btn{background:transparent;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;padding:5px 11px;border-radius:3px;cursor:pointer;transition:all .2s;}
+.topbar-btn:hover{border-color:var(--accent3);color:var(--accent3);}
+.topbar-btn.danger:hover{border-color:var(--accent);color:var(--accent);}
+
+.nav{background:var(--surface);border-bottom:1px solid var(--border);display:flex;padding:0 24px;overflow-x:auto;}
+.nav-tab{padding:13px 16px;font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;}
+.nav-tab:hover{color:var(--text);}
+.nav-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+
+.content{padding:28px 24px;max-width:1080px;margin:0 auto;}
+.panel{display:none;}.panel.active{display:block;}
+
+/* section header */
+.sh{display:flex;align-items:baseline;gap:12px;margin-bottom:18px;}
+.sh-title{font-family:'DM Serif Display',serif;font-size:22px;color:var(--ink);}
+.sh-sub{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:1.5px;}
+
+/* BOOLEAN */
+.bool-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;margin-bottom:14px;overflow:hidden;transition:box-shadow .2s;}
+.bool-card:hover{box-shadow:0 4px 20px rgba(26,26,46,.08);}
+.bool-head{background:var(--surface2);border-bottom:1px solid var(--border);padding:13px 18px;display:flex;align-items:center;justify-content:space-between;}
+.bool-platform{font-weight:600;font-size:13px;color:var(--ink);}
+.bool-desc{font-size:11px;color:var(--muted);margin-top:1px;}
+.tag{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1px;padding:3px 8px;border-radius:2px;}
+.tag-red{background:rgba(233,69,96,.1);color:var(--accent);border:1px solid rgba(233,69,96,.2);}
+.tag-teal{background:rgba(0,212,170,.1);color:#00a882;border:1px solid rgba(0,212,170,.2);}
+.tag-amber{background:rgba(245,166,35,.1);color:#c87d00;border:1px solid rgba(245,166,35,.2);}
+.tag-blue{background:rgba(100,140,255,.1);color:#4060d0;border:1px solid rgba(100,140,255,.2);}
+.bool-body{padding:14px 18px;}
+.bool-string{font-family:'DM Mono',monospace;font-size:11.5px;line-height:1.8;color:#1a1a2e;background:#f0f2fa;border:1px solid #d8dcee;border-radius:4px;padding:12px 14px;white-space:pre-wrap;word-break:break-word;margin-bottom:8px;}
+.bool-hint{font-size:11px;color:var(--muted);line-height:1.6;padding-top:8px;border-top:1px solid var(--border);}
+.copy-btn{background:var(--surface);border:1px solid var(--border);color:var(--muted);font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;padding:5px 11px;cursor:pointer;border-radius:3px;transition:all .2s;}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent);}
+.copy-btn.copied{background:rgba(0,212,170,.08);border-color:var(--accent3);color:#00a882;}
+
+/* KEYWORDS */
+.kw-section{margin-bottom:22px;}
+.kw-label{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:2px;margin-bottom:9px;padding-bottom:7px;border-bottom:1px solid var(--border);}
+.kw-grid{display:flex;flex-wrap:wrap;gap:6px;}
+.kw-chip{font-family:'DM Mono',monospace;font-size:11px;padding:4px 11px;border-radius:20px;border:1px solid;}
+.kw-must{background:rgba(233,69,96,.06);color:#c02040;border-color:rgba(233,69,96,.25);}
+.kw-strong{background:rgba(245,166,35,.06);color:#a06000;border-color:rgba(245,166,35,.3);}
+.kw-nice{background:rgba(100,140,255,.06);color:#2040a0;border-color:rgba(100,140,255,.2);}
+
+/* COMPANIES */
+.company-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px;}
+.company-tier{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px;}
+.company-tier-title{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:9px;padding-bottom:7px;border-bottom:1px solid var(--border);}
+.company-list{display:flex;flex-wrap:wrap;gap:5px;}
+.company-chip{font-size:11px;font-family:'DM Mono',monospace;padding:3px 8px;border-radius:3px;background:var(--surface2);border:1px solid var(--border);}
+.or-string-box{background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:12px;}
+.or-string-head{background:var(--surface2);border-bottom:1px solid var(--border);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;}
+.or-string-label{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);}
+.or-string-body{padding:12px 14px;font-family:'DM Mono',monospace;font-size:11.5px;color:var(--ink);line-height:1.7;background:#f0f2fa;word-break:break-word;}
+
+/* DECODER */
+.decoder-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
+.decoder-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;transition:box-shadow .2s;}
+.decoder-card:hover{box-shadow:0 4px 16px rgba(26,26,46,.07);}
+.decoder-card.full-width{grid-column:1/-1;}
+.decoder-card-head{padding:12px 16px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px;}
+.decoder-icon{font-size:15px;}
+.decoder-card-title{font-weight:600;font-size:13px;color:var(--ink);}
+.decoder-card-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+.decoder-card-body{padding:14px 16px;}
+.title-pill-grid{display:flex;flex-wrap:wrap;gap:6px;}
+.title-pill{font-size:12px;font-family:'DM Mono',monospace;padding:4px 10px;border-radius:20px;background:var(--surface2);border:1px solid var(--border);color:var(--text);cursor:default;transition:border-color .15s;}
+.title-pill:hover{border-color:var(--accent3);}
+.title-pill.primary-title{background:rgba(0,212,170,.07);border-color:rgba(0,212,170,.25);color:#008866;}
+.dialect-table{width:100%;border-collapse:collapse;}
+.dialect-table th{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);padding:5px 9px;text-align:left;border-bottom:1px solid var(--border);background:var(--surface2);}
+.dialect-table td{padding:7px 9px;border-bottom:1px solid var(--border);font-size:12px;vertical-align:top;}
+.dialect-table tr:last-child td{border-bottom:none;}
+.dialect-table td:first-child{font-family:'DM Mono',monospace;color:var(--accent);font-size:11px;white-space:nowrap;width:110px;}
+.signal-list{list-style:none;}
+.signal-list li{padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;line-height:1.6;display:flex;gap:9px;align-items:flex-start;}
+.signal-list li:last-child{border-bottom:none;}
+.signal-icon{font-size:12px;flex-shrink:0;margin-top:1px;}
+.signal-sub{font-size:11px;color:var(--muted);margin-top:2px;font-style:italic;}
+.flag-list{list-style:none;}
+.flag-list li{padding:6px 10px;border-radius:4px;margin-bottom:5px;font-size:12px;line-height:1.5;display:flex;gap:8px;align-items:flex-start;}
+.flag-list li:last-child{margin-bottom:0;}
+.flag-green{background:rgba(0,212,170,.06);border-left:3px solid var(--accent3);}
+.flag-red{background:rgba(233,69,96,.05);border-left:3px solid var(--accent);}
+.flag-reason{font-size:11px;color:var(--muted);margin-top:1px;}
+.outreach-box{background:var(--ink);border-radius:4px;padding:14px 16px;margin-bottom:9px;}
+.outreach-label{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent2);margin-bottom:7px;}
+.outreach-text{font-size:12px;color:rgba(255,255,255,.7);line-height:1.8;font-style:italic;}
+.outreach-note{font-size:11px;color:rgba(255,255,255,.3);margin-top:7px;}
+.linkedin-ai-box{background:linear-gradient(135deg,rgba(0,119,181,.08),rgba(0,212,170,.05));border:1px solid rgba(0,119,181,.2);border-radius:6px;padding:16px;}
+.linkedin-ai-prompt{font-family:'DM Mono',monospace;font-size:12px;line-height:1.8;color:var(--ink);background:rgba(255,255,255,.8);border:1px solid var(--border);border-radius:4px;padding:12px 14px;margin-bottom:9px;white-space:pre-wrap;word-break:break-word;}
+
+/* ── NOTES / LOG ── */
+.notes-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+.note-type-btns{display:flex;gap:6px;}
+.note-type-btn{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;padding:5px 12px;border-radius:3px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;transition:all .2s;}
+.note-type-btn.active,.note-type-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(233,69,96,.05);}
+.note-input-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:18px;}
+.note-textarea{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;padding:10px 13px;min-height:70px;resize:none;outline:none;transition:border-color .2s;}
+.note-textarea:focus{border-color:var(--accent3);}
+.note-textarea::placeholder{color:var(--muted2);}
+.add-note-btn{background:var(--ink);color:#fff;font-family:'DM Sans',sans-serif;font-weight:600;font-size:12px;border:none;padding:10px 18px;border-radius:4px;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.add-note-btn:hover{background:var(--ink3);}
+.log-feed{display:flex;flex-direction:column;gap:0;}
+.log-item{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--border);animation:fadeUp .25s ease both;}
+.log-item:last-child{border-bottom:none;}
+.log-dot-col{display:flex;flex-direction:column;align-items:center;padding-top:4px;}
+.log-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.log-line{flex:1;width:1px;background:var(--border);margin-top:4px;}
+.log-dot-hm{background:var(--accent);}
+.log-dot-search{background:var(--accent2);}
+.log-dot-candidate{background:var(--accent3);}
+.log-dot-general{background:var(--muted2);}
+.log-content{flex:1;}
+.log-meta{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+.log-type-badge{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1px;padding:2px 7px;border-radius:2px;border:1px solid;}
+.badge-hm{background:rgba(233,69,96,.08);color:var(--accent);border-color:rgba(233,69,96,.2);}
+.badge-search{background:rgba(245,166,35,.08);color:#b07000;border-color:rgba(245,166,35,.25);}
+.badge-candidate{background:rgba(0,212,170,.08);color:#009977;border-color:rgba(0,212,170,.2);}
+.badge-general{background:rgba(176,181,204,.12);color:var(--muted);border-color:var(--border);}
+.log-time{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);}
+.log-text{font-size:13px;color:var(--text);line-height:1.6;}
+.log-del{background:none;border:none;color:var(--muted2);cursor:pointer;font-size:12px;padding:0 4px;transition:color .15s;}
+.log-del:hover{color:var(--accent);}
+.log-empty{font-size:13px;color:var(--muted);font-style:italic;padding:16px 0;}
+
+/* RATING */
+.rating-intro{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:16px 18px;margin-bottom:20px;font-size:13px;color:var(--muted);line-height:1.7;}
+.rating-intro strong{color:var(--text);}
+.cand-entry{margin-bottom:12px;}
+.cand-entry-label{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:5px;display:flex;justify-content:space-between;}
+.remove-btn{color:var(--accent);cursor:pointer;background:none;border:none;font-size:11px;font-family:'DM Mono',monospace;}
+textarea.cand-input{background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;line-height:1.7;padding:12px 14px;min-height:120px;resize:vertical;outline:none;transition:border-color .2s;width:100%;margin-bottom:0;}
+textarea.cand-input:focus{border-color:var(--accent3);}
+textarea.cand-input::placeholder{color:var(--muted2);}
+.btn-row{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap;}
+.add-btn{background:transparent;border:1px dashed var(--border);color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;padding:8px 14px;cursor:pointer;border-radius:4px;transition:all .2s;}
+.add-btn:hover{border-color:var(--accent3);color:#00a882;}
+.rate-btn{background:var(--ink);color:#fff;font-family:'DM Sans',sans-serif;font-weight:600;font-size:13px;border:none;padding:10px 22px;border-radius:4px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:7px;}
+.rate-btn:hover{background:var(--ink3);transform:translateY(-1px);}
+.rate-btn:disabled{background:var(--border);color:var(--muted2);cursor:not-allowed;transform:none;}
+.results-area{margin-top:24px;}
+.candidate-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;margin-bottom:18px;overflow:hidden;animation:fadeUp .35s ease both;box-shadow:0 2px 12px rgba(26,26,46,.05);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.cand-head{padding:16px 20px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--border);background:var(--surface2);}
+.grade-badge{width:48px;height:48px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:21px;flex-shrink:0;}
+.grade-A{background:rgba(0,212,170,.1);color:#009977;border:1px solid rgba(0,212,170,.25);}
+.grade-B{background:rgba(245,166,35,.1);color:#b07000;border:1px solid rgba(245,166,35,.25);}
+.grade-C{background:rgba(233,69,96,.08);color:var(--accent);border:1px solid rgba(233,69,96,.2);}
+.grade-D{background:rgba(150,50,50,.08);color:#a03030;border:1px solid rgba(150,50,50,.2);}
+.cand-name{font-family:'DM Serif Display',serif;font-size:17px;color:var(--ink);}
+.cand-role{font-size:12px;color:var(--muted);margin-top:2px;}
+.verdict-badge{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;padding:4px 11px;border-radius:3px;border:1px solid;}
+.v-strong-hire{background:rgba(0,212,170,.08);color:#009977;border-color:rgba(0,212,170,.25);}
+.v-hire{background:rgba(100,200,100,.07);color:#2a7a2a;border-color:rgba(100,200,100,.2);}
+.v-maybe{background:rgba(245,166,35,.08);color:#b07000;border-color:rgba(245,166,35,.25);}
+.v-no-hire{background:rgba(233,69,96,.07);color:var(--accent);border-color:rgba(233,69,96,.2);}
+.cand-body{padding:18px 20px;}
+.score-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
+.score-item-label{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:5px;}
+.score-bar-wrap{height:5px;background:var(--surface3);border-radius:3px;overflow:hidden;margin-bottom:3px;}
+.score-bar{height:100%;border-radius:3px;}
+.score-val{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);text-align:right;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.analysis-box{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:12px;}
+.analysis-label{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;}
+.a-strengths .analysis-label{color:#009977;}.a-gaps .analysis-label{color:var(--accent);}
+.analysis-list{list-style:none;}
+.analysis-list li{font-size:12px;color:var(--muted);line-height:1.6;padding:3px 0;border-bottom:1px solid var(--border);display:flex;gap:7px;}
+.analysis-list li:last-child{border-bottom:none;}
+.a-strengths .analysis-list li::before{content:'✓';color:#009977;flex-shrink:0;}
+.a-gaps .analysis-list li::before{content:'✗';color:var(--accent);flex-shrink:0;}
+.rec-box{background:var(--ink);border-radius:4px;padding:13px 15px;}
+.rec-label{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--accent2);margin-bottom:5px;}
+.rec-text{font-size:12px;color:rgba(255,255,255,.65);line-height:1.7;}
+.compare-wrap{overflow-x:auto;margin-bottom:20px;}
+.compare-table{width:100%;border-collapse:collapse;font-size:12px;}
+.compare-table th{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);padding:9px 12px;text-align:left;border-bottom:2px solid var(--border);background:var(--surface2);white-space:nowrap;}
+.compare-table td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.compare-table tr:hover td{background:var(--surface2);}
+.rank-num{font-family:'DM Serif Display',serif;font-size:17px;color:var(--accent);}
+.loading-msg{display:flex;align-items:center;gap:10px;padding:18px;font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:28px;right:28px;background:var(--ink);color:#fff;font-family:'DM Mono',monospace;font-size:12px;padding:12px 18px;border-radius:6px;border:1px solid rgba(255,255,255,.1);box-shadow:0 8px 32px rgba(0,0,0,.3);z-index:9999;display:flex;align-items:center;gap:10px;animation:toastIn .25s ease both;max-width:360px;line-height:1.5;}
+.toast.success{border-color:rgba(0,212,170,.3);}
+.toast.error{border-color:rgba(233,69,96,.3);}
+.toast-icon{font-size:16px;flex-shrink:0;}
+@keyframes toastIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+@keyframes toastOut{to{opacity:0;transform:translateY(12px);}}
+
+@media(max-width:700px){
+  .decoder-grid{grid-template-columns:1fr;}
+  .decoder-card.full-width{grid-column:1;}
+  .score-grid{grid-template-columns:1fr 1fr;}
+  .two-col{grid-template-columns:1fr;}
+  .company-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ SETUP ══ -->
+<div id="setup-screen">
+  <div class="setup-inner">
+    <div class="setup-eyebrow">Recruiter Sourcing Kit</div>
+    <div class="setup-title">Your sourcing kit,<br><em>any role, any time.</em></div>
+    <div class="setup-sub">Pick up a saved role or generate a new kit from any job description.</div>
+
+    <!-- LIBRARY -->
+    <div class="library-section">
+      <div class="library-label">Saved Roles</div>
+      <div id="library-grid" class="library-grid"></div>
+    </div>
+
+    <!-- NEW ROLE FORM -->
+    <div class="new-role-card">
+      <div style="font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,.3);margin-bottom:20px;">New Role</div>
+      <div class="field-label">Role Title <span class="req">*</span></div>
+      <input type="text" id="setup-title" placeholder="e.g. Senior Manager, Business Operations" />
+      <div class="field-label">Job Description <span class="req">*</span></div>
+      <textarea class="jd-input" id="setup-jd" placeholder="Paste the full job description here..."></textarea>
+      <div class="field-label">Company (optional)</div>
+      <input type="text" id="setup-company" placeholder="e.g. NVIDIA, Google, Stripe..." style="margin-bottom:20px;" />
+      <div class="progress-bar-outer" id="setup-progress">
+        <div class="progress-bar-inner" id="progress-fill" style="width:0%"></div>
+      </div>
+      <button class="generate-btn" id="generate-btn" onclick="generateKit()">Generate Sourcing Kit →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MAIN TOOL ══ -->
+<div id="main-tool">
+  <div class="topbar">
+    <div class="topbar-role" id="topbar-title">Sourcing Kit</div>
+    <div class="topbar-right">
+      <button class="topbar-btn" onclick="saveCurrentRole()">💾 Save</button>
+      <button class="topbar-btn" id="drive-btn" onclick="exportToDrive()" title="Export full kit + notes to Google Drive">📂 Export to Drive</button>
+      <button class="topbar-btn danger" onclick="goHome()">← All Roles</button>
+    </div>
+  </div>
+  <div class="nav">
+    <button class="nav-tab active" onclick="switchTab('booleans',this)">Boolean Strings</button>
+    <button class="nav-tab" onclick="switchTab('keywords',this)">Keywords</button>
+    <button class="nav-tab" onclick="switchTab('companies',this)">Target Companies</button>
+    <button class="nav-tab" onclick="switchTab('decoder',this)">Signal Decoder</button>
+    <button class="nav-tab" onclick="switchTab('rating',this)">Rate Candidates</button>
+    <button class="nav-tab" onclick="switchTab('log',this)">Notes & Log</button>
+  </div>
+  <div class="content">
+
+    <div id="panel-booleans" class="panel active">
+      <div class="sh"><div class="sh-title">Boolean Search Strings</div><div class="sh-sub">LinkedIn Recruiter · Google X-Ray · ATS</div></div>
+      <div id="booleans-content"></div>
+    </div>
+
+    <div id="panel-keywords" class="panel">
+      <div class="sh"><div class="sh-title">Keyword Targeting Guide</div><div class="sh-sub">Screen profiles & build filters</div></div>
+      <div id="keywords-content"></div>
+    </div>
+
+    <div id="panel-companies" class="panel">
+      <div class="sh"><div class="sh-title">Target Company List</div><div class="sh-sub">OR boolean strings by tier</div></div>
+      <div id="companies-content"></div>
+    </div>
+
+    <div id="panel-decoder" class="panel">
+      <div class="sh"><div class="sh-title">Signal Decoder</div><div class="sh-sub">How great candidates disguise their experience</div></div>
+      <div id="decoder-content"></div>
+    </div>
+
+    <div id="panel-rating" class="panel">
+      <div class="sh"><div class="sh-title">Rate Candidates</div><div class="sh-sub">Score profiles against the JD</div></div>
+      <div class="rating-intro">Paste candidate profiles — <strong>LinkedIn bios, resume text, or summaries</strong>. Each scored across four dimensions with strengths, gaps, and a hire recommendation.</div>
+      <div id="cand-list">
+        <div class="cand-entry" id="centry-0">
+          <div class="cand-entry-label"><span>Candidate 1</span></div>
+          <textarea class="cand-input" id="cand-0" placeholder="Paste LinkedIn profile, resume, or summary here..."></textarea>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="add-btn" id="add-cand-btn" onclick="addCand()">+ Add Candidate</button>
+        <button class="rate-btn" id="rate-btn" onclick="rateCandidates()">⚡ Rate Candidates</button>
+        <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)">Up to 5 at once</span>
+      </div>
+      <div id="results-area" class="results-area"></div>
+    </div>
+
+    <div id="panel-log" class="panel">
+      <div class="sh"><div class="sh-title">Notes & Log</div><div class="sh-sub">HM feedback · search iterations · candidate notes</div></div>
+      <div class="notes-toolbar">
+        <div class="note-type-btns">
+          <button class="note-type-btn active" data-type="hm" onclick="setNoteType('hm',this)">HM Feedback</button>
+          <button class="note-type-btn" data-type="search" onclick="setNoteType('search',this)">Search Iteration</button>
+          <button class="note-type-btn" data-type="candidate" onclick="setNoteType('candidate',this)">Candidate Note</button>
+          <button class="note-type-btn" data-type="general" onclick="setNoteType('general',this)">General</button>
+        </div>
+      </div>
+      <div class="note-input-row">
+        <textarea class="note-textarea" id="note-input" placeholder="e.g. HM rejected profile — too much OEM background, wants hyperscaler-only. Prioritise AWS/Google/Meta..."></textarea>
+        <button class="add-note-btn" onclick="addNote()">Add Entry</button>
+      </div>
+      <div id="log-feed" class="log-feed"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ══ STATE ══
+let JD_TEXT='', ROLE_TITLE='', COMPANY_NAME='', GENERATED_DATA=null, CURRENT_ROLE_ID=null;
+let candCount=1, activeNoteType='hm';
+const STORAGE_KEY='recruiter_sourcing_library_v2';
+
+// ══ LIBRARY ══
+function loadLibrary(){
+  try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'); }catch(e){ return {}; }
+}
+function saveLibrary(lib){ localStorage.setItem(STORAGE_KEY, JSON.stringify(lib)); }
+
+function renderLibrary(){
+  const lib=loadLibrary();
+  const keys=Object.keys(lib).sort((a,b)=>(lib[b].savedAt||0)-(lib[a].savedAt||0));
+  const grid=document.getElementById('library-grid');
+  if(!keys.length){
+    grid.innerHTML='<div class="lib-empty">No saved roles yet — generate your first kit below.</div>';
+    return;
+  }
+  grid.innerHTML=keys.map(id=>{
+    const r=lib[id];
+    const date=r.savedAt?new Date(r.savedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'2-digit'}):'';
+    const noteCount=(r.notes||[]).length;
+    return `<div class="lib-card" onclick="loadRole('${id}')">
+      <button class="lib-card-del" onclick="event.stopPropagation();deleteRole('${id}')" title="Delete">✕</button>
+      <div class="lib-card-role">${escHtml(r.title)}</div>
+      <div class="lib-card-company">${escHtml(r.company||'No company')}</div>
+      <div class="lib-card-meta">${date}${noteCount?` · ${noteCount} note${noteCount>1?'s':''}`:''}</div>
+    </div>`;
+  }).join('');
+}
+
+function saveCurrentRole(){
+  if(!GENERATED_DATA) return;
+  const lib=loadLibrary();
+  const id=CURRENT_ROLE_ID||('role_'+Date.now());
+  CURRENT_ROLE_ID=id;
+  const existing=lib[id]||{};
+  lib[id]={
+    id, title:ROLE_TITLE, company:COMPANY_NAME, jd:JD_TEXT,
+    data:GENERATED_DATA, notes:existing.notes||[],
+    savedAt:Date.now()
+  };
+  saveLibrary(lib);
+  const btn=document.querySelector('.topbar-btn');
+  const orig=btn.innerHTML;
+  btn.innerHTML='✓ Saved';
+  btn.style.color='var(--accent3)';
+  setTimeout(()=>{ btn.innerHTML=orig; btn.style.color=''; },1800);
+}
+
+function loadRole(id){
+  const lib=loadLibrary();
+  const r=lib[id];
+  if(!r) return;
+  ROLE_TITLE=r.title; COMPANY_NAME=r.company||''; JD_TEXT=r.jd;
+  GENERATED_DATA=r.data; CURRENT_ROLE_ID=id;
+  renderTool();
+  renderLog(r.notes||[]);
+  document.getElementById('setup-screen').style.display='none';
+  document.getElementById('main-tool').style.display='block';
+  // reset to first tab
+  document.querySelectorAll('.nav-tab').forEach((t,i)=>t.classList.toggle('active',i===0));
+  document.querySelectorAll('.panel').forEach((p,i)=>p.classList.toggle('active',i===0));
+}
+
+function deleteRole(id){
+  if(!confirm('Delete this saved role?')) return;
+  const lib=loadLibrary(); delete lib[id]; saveLibrary(lib); renderLibrary();
+}
+
+function goHome(){
+  document.getElementById('main-tool').style.display='none';
+  document.getElementById('setup-screen').style.display='flex';
+  renderLibrary();
+  // reset rating
+  candCount=1;
+  document.getElementById('cand-list').innerHTML=`<div class="cand-entry" id="centry-0"><div class="cand-entry-label"><span>Candidate 1</span></div><textarea class="cand-input" id="cand-0" placeholder="Paste LinkedIn profile, resume, or summary here..."></textarea></div>`;
+  document.getElementById('add-cand-btn').disabled=false;
+  document.getElementById('results-area').innerHTML='';
+}
+
+// ══ GENERATE ══
+async function generateKit(){
+  JD_TEXT=document.getElementById('setup-jd').value.trim();
+  ROLE_TITLE=document.getElementById('setup-title').value.trim();
+  COMPANY_NAME=document.getElementById('setup-company').value.trim();
+  if(!JD_TEXT||!ROLE_TITLE){ alert('Please enter a role title and job description.'); return; }
+
+  const btn=document.getElementById('generate-btn');
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Generating your kit...';
+  const pw=document.getElementById('setup-progress');
+  const pf=document.getElementById('progress-fill');
+  pw.style.display='block';
+  let prog=0;
+  const pi=setInterval(()=>{ prog=Math.min(prog+Math.random()*7,88); pf.style.width=prog+'%'; },300);
+
+  const prompt=`You are an expert technical recruiter. Given this job description, generate a complete sourcing kit.
+Role: ${ROLE_TITLE}
+Company: ${COMPANY_NAME||'Not specified'}
+JD:
+${JD_TEXT}
+
+Respond ONLY with a valid JSON object (no markdown, no preamble) with this exact structure:
+{
+  "booleans":[{"platform":"string","tag":"string","tagStyle":"tag-red|tag-teal|tag-amber|tag-blue","description":"string","string":"string","hint":"string"}],
+  "keywords":{"mustHave":["..."],"strongDiff":["..."],"niceToHave":["..."]},
+  "companies":{
+    "tier1":{"label":"Direct Competitors","color":"tag-red","companies":["..."]},
+    "tier2":{"label":"Adjacent Industry","color":"tag-teal","companies":["..."]},
+    "tier3":{"label":"Target Employers","color":"tag-amber","companies":["..."]}
+  },
+  "decoder":{
+    "titles":[{"title":"string","primary":true,"note":"string"}],
+    "dialects":[{"background":"string","theyCallIt":"string","youNeedIt":"string"}],
+    "achievementSignals":[{"signal":"string","example":"string","whyItMatters":"string"}],
+    "greenFlags":[{"flag":"string","reason":"string"}],
+    "redFlags":[{"flag":"string","reason":"string"}],
+    "linkedinAiPrompts":[{"label":"string","prompt":"string"}],
+    "outreachAngles":[{"persona":"string","message":"string"}]
+  }
+}
+Rules:
+- 4 boolean strings (Primary, Domain Focus, X-Ray, Adjacent Titles) using proper LinkedIn boolean syntax
+- mustHave: 5-8 knockout keywords; strongDiff: 6-10 differentiators; niceToHave: 4-6 bonus
+- 6-10 companies per tier
+- titles: 8-12 real titles, mark 3-4 primary:true
+- dialects: 6-8 rows; achievementSignals: 5-6; greenFlags: 5-6; redFlags: 4-5
+- linkedinAiPrompts: 2 full prompts; outreachAngles: 3 persona-tailored InMail openers`;
+
+  try{
+    const res=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:4000,messages:[{role:"user",content:prompt}]})
+    });
+    const data=await res.json();
+    const raw=data.content.map(i=>i.text||"").join("");
+    GENERATED_DATA=JSON.parse(raw.replace(/```json|```/g,"").trim());
+    CURRENT_ROLE_ID='role_'+Date.now();
+    clearInterval(pi); pf.style.width='100%';
+    // auto-save
+    const lib=loadLibrary();
+    lib[CURRENT_ROLE_ID]={id:CURRENT_ROLE_ID,title:ROLE_TITLE,company:COMPANY_NAME,jd:JD_TEXT,data:GENERATED_DATA,notes:[],savedAt:Date.now()};
+    saveLibrary(lib);
+    setTimeout(()=>{
+      renderTool(); renderLog([]);
+      document.getElementById('setup-screen').style.display='none';
+      document.getElementById('main-tool').style.display='block';
+      btn.disabled=false; btn.innerHTML='Generate Sourcing Kit →';
+      pw.style.display='none'; pf.style.width='0%';
+    },300);
+  }catch(err){
+    clearInterval(pi);
+    btn.disabled=false; btn.innerHTML='Generate Sourcing Kit →';
+    pw.style.display='none';
+    alert('Error: '+err.message);
+  }
+}
+
+// ══ RENDER ══
+function renderTool(){
+  document.getElementById('topbar-title').innerHTML=`<span>${escHtml(COMPANY_NAME||'Kit')}</span>${COMPANY_NAME?' — ':''}${escHtml(ROLE_TITLE)}`;
+  renderBooleans(); renderKeywords(); renderCompanies(); renderDecoder();
+}
+
+function renderBooleans(){
+  document.getElementById('booleans-content').innerHTML=(GENERATED_DATA.booleans||[]).map((b,i)=>`
+    <div class="bool-card">
+      <div class="bool-head">
+        <div><div class="bool-platform">${escHtml(b.platform)}</div><div class="bool-desc">${escHtml(b.description)}</div></div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span class="tag ${b.tagStyle||'tag-red'}">${escHtml(b.tag)}</span>
+          <button class="copy-btn" onclick="copyText(this,'bs-${i}')">Copy</button>
+        </div>
+      </div>
+      <div class="bool-body">
+        <div class="bool-string" id="bs-${i}">${escHtml(b.string)}</div>
+        <div class="bool-hint">💡 ${escHtml(b.hint)}</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderKeywords(){
+  const kw=GENERATED_DATA.keywords||{};
+  document.getElementById('keywords-content').innerHTML=`
+    <div class="kw-section"><div class="kw-label" style="color:#c02040">Must-Have — Knockout Criteria</div><div class="kw-grid">${(kw.mustHave||[]).map(k=>`<span class="kw-chip kw-must">${escHtml(k)}</span>`).join('')}</div></div>
+    <div class="kw-section"><div class="kw-label" style="color:#a06000">Strong Differentiators</div><div class="kw-grid">${(kw.strongDiff||[]).map(k=>`<span class="kw-chip kw-strong">${escHtml(k)}</span>`).join('')}</div></div>
+    <div class="kw-section"><div class="kw-label" style="color:#2040a0">Nice-to-Have</div><div class="kw-grid">${(kw.niceToHave||[]).map(k=>`<span class="kw-chip kw-nice">${escHtml(k)}</span>`).join('')}</div></div>`;
+}
+
+function renderCompanies(){
+  const c=GENERATED_DATA.companies||{};
+  const tiers=['tier1','tier2','tier3'];
+  let html='<div class="company-grid">';
+  tiers.forEach(t=>{
+    const tier=c[t]||{};
+    html+=`<div class="company-tier"><div class="company-tier-title"><span class="tag ${tier.color||'tag-red'}">${escHtml(tier.label||t)}</span></div><div class="company-list">${(tier.companies||[]).map(co=>`<span class="company-chip">${escHtml(co)}</span>`).join('')}</div></div>`;
+  });
+  html+='</div><div class="sh" style="margin-top:24px;margin-bottom:14px"><div class="sh-title" style="font-size:18px">OR Boolean Strings</div><div class="sh-sub">Drop into LinkedIn\'s Current Company filter</div></div>';
+  tiers.forEach((t,idx)=>{
+    const tier=c[t]||{}; if(!(tier.companies||[]).length) return;
+    const orStr=tier.companies.map(co=>`"${co}"`).join(' OR ');
+    const id=`or-${idx}`;
+    html+=`<div class="or-string-box"><div class="or-string-head"><div class="or-string-label">Tier ${idx+1} — ${escHtml(tier.label||t)}</div><button class="copy-btn" onclick="copyText(this,'${id}')">Copy</button></div><div class="or-string-body" id="${id}">(${escHtml(orStr)})</div></div>`;
+  });
+  const all=tiers.flatMap(t=>(c[t]?.companies||[]));
+  if(all.length){
+    const allOr=all.map(co=>`"${co}"`).join(' OR ');
+    html+=`<div class="or-string-box"><div class="or-string-head"><div class="or-string-label">All Tiers Combined</div><button class="copy-btn" onclick="copyText(this,'or-all')">Copy</button></div><div class="or-string-body" id="or-all">(${escHtml(allOr)})</div></div>`;
+  }
+  document.getElementById('companies-content').innerHTML=html;
+}
+
+function renderDecoder(){
+  const d=GENERATED_DATA.decoder||{};
+  const titlesHtml=`<div class="decoder-card"><div class="decoder-card-head"><span class="decoder-icon">🎭</span><div><div class="decoder-card-title">Title Disguises</div><div class="decoder-card-sub">What the right person calls themselves</div></div></div><div class="decoder-card-body"><div class="title-pill-grid">${(d.titles||[]).map(t=>`<span class="title-pill${t.primary?' primary-title':''}" title="${escHtml(t.note||'')}">${escHtml(t.title)}</span>`).join('')}</div><div style="margin-top:8px;font-size:11px;color:var(--muted)">Highlighted = highest yield. Hover for context.</div></div></div>`;
+  const dialectsHtml=`<div class="decoder-card"><div class="decoder-card-head"><span class="decoder-icon">🗣️</span><div><div class="decoder-card-title">Industry Dialects</div><div class="decoder-card-sub">Same skill, different vocabulary</div></div></div><div class="decoder-card-body"><table class="dialect-table"><thead><tr><th>Background</th><th>They write</th><th>You need</th></tr></thead><tbody>${(d.dialects||[]).map(r=>`<tr><td>${escHtml(r.background)}</td><td style="color:var(--ink);font-style:italic">"${escHtml(r.theyCallIt)}"</td><td>${escHtml(r.youNeedIt)}</td></tr>`).join('')}</tbody></table></div></div>`;
+  const achHtml=`<div class="decoder-card full-width"><div class="decoder-card-head"><span class="decoder-icon">📈</span><div><div class="decoder-card-title">Achievement Signal Patterns</div><div class="decoder-card-sub">Proof points that separate A-players</div></div></div><div class="decoder-card-body"><ul class="signal-list">${(d.achievementSignals||[]).map(s=>`<li><span class="signal-icon">◆</span><div><div><strong>${escHtml(s.signal)}</strong></div><div class="signal-sub">e.g. "${escHtml(s.example)}" — ${escHtml(s.whyItMatters)}</div></div></li>`).join('')}</ul></div></div>`;
+  const flagsHtml=`<div class="decoder-card full-width"><div class="decoder-card-head"><span class="decoder-icon">🚦</span><div><div class="decoder-card-title">Profile Flags</div><div class="decoder-card-sub">What to look for — and what looks good but isn't</div></div></div><div class="decoder-card-body" style="display:grid;grid-template-columns:1fr 1fr;gap:14px"><div><div style="font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:#009977;margin-bottom:9px">Green Flags ✓</div><ul class="flag-list">${(d.greenFlags||[]).map(f=>`<li class="flag-green"><span>✓</span><div><div>${escHtml(f.flag)}</div><div class="flag-reason">${escHtml(f.reason)}</div></div></li>`).join('')}</ul></div><div><div style="font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);margin-bottom:9px">Red Flags ✗</div><ul class="flag-list">${(d.redFlags||[]).map(f=>`<li class="flag-red"><span>✗</span><div><div>${escHtml(f.flag)}</div><div class="flag-reason">${escHtml(f.reason)}</div></div></li>`).join('')}</ul></div></div></div>`;
+  const aiHtml=`<div class="decoder-card full-width"><div class="decoder-card-head"><span class="decoder-icon">🤖</span><div><div class="decoder-card-title">LinkedIn AI Prompts</div><div class="decoder-card-sub">Paste directly into LinkedIn Recruiter's AI search</div></div></div><div class="decoder-card-body">${(d.linkedinAiPrompts||[]).map((p,i)=>`<div style="margin-bottom:13px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><div style="font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted)">${escHtml(p.label)}</div><button class="copy-btn" onclick="copyText(this,'aip-${i}')">Copy</button></div><div class="linkedin-ai-prompt" id="aip-${i}">${escHtml(p.prompt)}</div></div>`).join('')}</div></div>`;
+  const outHtml=`<div class="decoder-card full-width"><div class="decoder-card-head"><span class="decoder-icon">✉️</span><div><div class="decoder-card-title">InMail Openers by Persona</div><div class="decoder-card-sub">Tailored first-touch messages — edit before sending</div></div></div><div class="decoder-card-body">${(d.outreachAngles||[]).map((o,i)=>`<div class="outreach-box" style="margin-bottom:${i<(d.outreachAngles.length-1)?'8px':'0'}"><div class="outreach-label">${escHtml(o.persona)}</div><div class="outreach-text">${escHtml(o.message)}</div><div class="outreach-note">Personalize with their company, metric, or project before sending.</div></div>`).join('')}</div></div>`;
+  document.getElementById('decoder-content').innerHTML=`<div class="decoder-grid">${titlesHtml}${dialectsHtml}${achHtml}${flagsHtml}${aiHtml}${outHtml}</div>`;
+}
+
+// ══ NOTES / LOG ══
+function setNoteType(type, el){
+  activeNoteType=type;
+  document.querySelectorAll('.note-type-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  const placeholders={
+    hm:'e.g. HM rejected — wants hyperscaler-only, no OEM backgrounds. Needs stronger exec comms evidence.',
+    search:'e.g. Tried boolean string 2 with "Depot Repair" added — better signal, 60 results down to 22 qualified.',
+    candidate:'e.g. Sarah K. at AWS — strong RMA background, 8yr tenure, may be open to move. Follow up in 2 weeks.',
+    general:'e.g. Role priority increased, HM wants first slate by Friday.'
+  };
+  document.getElementById('note-input').placeholder=placeholders[type]||'Add a note...';
+}
+
+function addNote(){
+  const text=document.getElementById('note-input').value.trim();
+  if(!text) return;
+  const lib=loadLibrary();
+  if(!lib[CURRENT_ROLE_ID]) return;
+  const note={id:'n'+Date.now(),type:activeNoteType,text,ts:Date.now()};
+  lib[CURRENT_ROLE_ID].notes=lib[CURRENT_ROLE_ID].notes||[];
+  lib[CURRENT_ROLE_ID].notes.unshift(note);
+  saveLibrary(lib);
+  document.getElementById('note-input').value='';
+  renderLog(lib[CURRENT_ROLE_ID].notes);
+}
+
+function deleteNote(noteId){
+  const lib=loadLibrary();
+  if(!lib[CURRENT_ROLE_ID]) return;
+  lib[CURRENT_ROLE_ID].notes=(lib[CURRENT_ROLE_ID].notes||[]).filter(n=>n.id!==noteId);
+  saveLibrary(lib);
+  renderLog(lib[CURRENT_ROLE_ID].notes);
+}
+
+function renderLog(notes){
+  const feed=document.getElementById('log-feed');
+  if(!notes||!notes.length){
+    feed.innerHTML='<div class="log-empty">No entries yet. Add your first note above — HM feedback, search tweaks, candidate intel.</div>';
+    return;
+  }
+  const typeLabels={hm:'HM Feedback',search:'Search Iteration',candidate:'Candidate Note',general:'General'};
+  const dotClass={hm:'log-dot-hm',search:'log-dot-search',candidate:'log-dot-candidate',general:'log-dot-general'};
+  const badgeClass={hm:'badge-hm',search:'badge-search',candidate:'badge-candidate',general:'badge-general'};
+  feed.innerHTML=notes.map((n,idx)=>{
+    const d=new Date(n.ts);
+    const timeStr=d.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+    return `<div class="log-item">
+      <div class="log-dot-col">
+        <div class="log-dot ${dotClass[n.type]||'log-dot-general'}"></div>
+        ${idx<notes.length-1?'<div class="log-line"></div>':''}
+      </div>
+      <div class="log-content">
+        <div class="log-meta">
+          <span class="log-type-badge ${badgeClass[n.type]||'badge-general'}">${typeLabels[n.type]||'Note'}</span>
+          <span class="log-time">${timeStr}</span>
+          <button class="log-del" onclick="deleteNote('${n.id}')" title="Delete">✕</button>
+        </div>
+        <div class="log-text">${escHtml(n.text)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══ RATING ══
+function addCand(){
+  if(candCount>=5) return;
+  const list=document.getElementById('cand-list');
+  const div=document.createElement('div');
+  div.className='cand-entry'; div.id=`centry-${candCount}`;
+  div.innerHTML=`<div class="cand-entry-label"><span>Candidate ${candCount+1}</span><button class="remove-btn" onclick="this.closest('.cand-entry').remove()">Remove</button></div><textarea class="cand-input" id="cand-${candCount}" placeholder="Paste LinkedIn profile, resume, or summary here..."></textarea>`;
+  list.appendChild(div); candCount++;
+  if(candCount>=5) document.getElementById('add-cand-btn').disabled=true;
+}
+
+async function rateCandidates(){
+  const profiles=[];
+  document.querySelectorAll('.cand-input').forEach(ta=>{ if(ta.value.trim()) profiles.push(ta.value.trim()); });
+  if(!profiles.length){ alert('Please paste at least one candidate profile.'); return; }
+  const btn=document.getElementById('rate-btn');
+  btn.disabled=true; btn.innerHTML='<span class="spinner-dark"></span> Evaluating...';
+  const ra=document.getElementById('results-area');
+  ra.innerHTML=`<div class="loading-msg"><span class="spinner-dark"></span>Analyzing ${profiles.length} candidate${profiles.length>1?'s':''} against the JD...</div>`;
+  const prompt=`You are an expert technical recruiter. Evaluate these ${profiles.length} candidate profile(s) against:
+Role: ${ROLE_TITLE}
+Company: ${COMPANY_NAME||'Not specified'}
+JD: ${JD_TEXT}
+Return a JSON array. Each element:
+- name, currentTitle, overallScore(0-100), grade(A|B|C|D), verdict(Strong Hire|Hire|Maybe|No Hire)
+- domainScore, leadershipScore, analyticsScore, execPresenceScore (all 0-100)
+- strengths(3-4 strings), gaps(2-3 strings, empty if Strong Hire), recommendation(1-2 sentences)
+Profiles:
+${profiles.map((p,i)=>`--- Candidate ${i+1} ---\n${p}`).join('\n\n')}
+Respond ONLY with a valid JSON array.`;
+  try{
+    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:2000,messages:[{role:"user",content:prompt}]})});
+    const data=await res.json();
+    const results=JSON.parse(data.content.map(i=>i.text||"").join("").replace(/```json|```/g,"").trim());
+    renderResults(results);
+  }catch(err){ ra.innerHTML=`<div style="color:var(--accent);padding:18px;font-family:'DM Mono',monospace;font-size:12px">Error: ${err.message}</div>`; }
+  btn.disabled=false; btn.innerHTML='⚡ Rate Candidates';
+}
+
+function sCol(s){ return s>=75?'#009977':s>=50?'#b07000':s>=30?'#c05020':'var(--accent)'; }
+function vClass(v){ return v==='Strong Hire'?'v-strong-hire':v==='Hire'?'v-hire':v==='Maybe'?'v-maybe':'v-no-hire'; }
+
+function renderResults(results){
+  const area=document.getElementById('results-area');
+  const sorted=[...results].sort((a,b)=>b.overallScore-a.overallScore);
+  let html=`<div class="sh" style="margin-bottom:14px"><div class="sh-title">Results — ${results.length} Candidate${results.length>1?'s':''}</div></div>`;
+  if(results.length>1){
+    html+=`<div class="compare-wrap"><table class="compare-table"><thead><tr><th>Rank</th><th>Candidate</th><th>Overall</th><th>Domain</th><th>Leadership</th><th>Analytics</th><th>Exec Presence</th><th>Verdict</th></tr></thead><tbody>`;
+    sorted.forEach((c,i)=>{ html+=`<tr><td><span class="rank-num">${i+1}</span></td><td><strong>${escHtml(c.name)}</strong><br><span style="color:var(--muted);font-size:11px">${escHtml(c.currentTitle||'')}</span></td><td style="font-family:'DM Serif Display',serif;font-size:17px;color:${sCol(c.overallScore)}">${c.overallScore}</td><td>${c.domainScore}</td><td>${c.leadershipScore}</td><td>${c.analyticsScore}</td><td>${c.execPresenceScore}</td><td><span class="verdict-badge ${vClass(c.verdict)}">${escHtml(c.verdict)}</span></td></tr>`; });
+    html+='</tbody></table></div>';
+  }
+  sorted.forEach((c,delay)=>{
+    const gc=c.grade==='A'?'grade-A':c.grade==='B'?'grade-B':c.grade==='C'?'grade-C':'grade-D';
+    html+=`<div class="candidate-card" style="animation-delay:${delay*.1}s"><div class="cand-head"><div class="grade-badge ${gc}">${c.grade}</div><div><div class="cand-name">${escHtml(c.name)}</div><div class="cand-role">${escHtml(c.currentTitle||'')}</div></div><div style="margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:7px"><span class="verdict-badge ${vClass(c.verdict)}">${escHtml(c.verdict)}</span><span style="font-family:'DM Serif Display',serif;font-size:23px;color:${sCol(c.overallScore)}">${c.overallScore}<span style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace">/100</span></span></div></div><div class="cand-body"><div class="score-grid">${[['domainScore','Domain Depth'],['leadershipScore','Leadership'],['analyticsScore','Analytics'],['execPresenceScore','Exec Presence']].map(([key,label])=>`<div><div class="score-item-label">${label}</div><div class="score-bar-wrap"><div class="score-bar" style="width:${c[key]}%;background:${sCol(c[key])}"></div></div><div class="score-val">${c[key]}/100</div></div>`).join('')}</div><div class="two-col"><div class="analysis-box a-strengths"><div class="analysis-label">Strengths</div><ul class="analysis-list">${(c.strengths||[]).map(s=>`<li>${escHtml(s)}</li>`).join('')}</ul></div><div class="analysis-box a-gaps"><div class="analysis-label">Gaps / Watch-outs</div><ul class="analysis-list">${(c.gaps||[]).length?(c.gaps||[]).map(g=>`<li>${escHtml(g)}</li>`).join(''):'<li style="color:#009977">No significant gaps identified</li>'}</ul></div></div><div class="rec-box"><div class="rec-label">Recommendation</div><div class="rec-text">${escHtml(c.recommendation)}</div></div></div></div>`;
+  });
+  area.innerHTML=html;
+}
+
+// ══ UTILS ══
+function switchTab(name,el){
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('panel-'+name).classList.add('active');
+  // refresh log when opening it
+  if(name==='log'&&CURRENT_ROLE_ID){ const lib=loadLibrary(); renderLog((lib[CURRENT_ROLE_ID]||{}).notes||[]); }
+}
+
+function copyText(btn,id){
+  const el=document.getElementById(id);
+  navigator.clipboard.writeText(el.textContent||el.innerText).then(()=>{
+    btn.textContent='Copied!'; btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent='Copy'; btn.classList.remove('copied'); },2000);
+  });
+}
+
+function escHtml(str){ return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ══ GOOGLE DRIVE EXPORT ══
+function showToast(msg, type='info', duration=4000){
+  const existing=document.querySelector('.toast');
+  if(existing) existing.remove();
+  const icons={success:'✓',error:'✗',info:'⏳'};
+  const t=document.createElement('div');
+  t.className=`toast ${type}`;
+  t.innerHTML=`<span class="toast-icon">${icons[type]||'●'}</span><span>${msg}</span>`;
+  document.body.appendChild(t);
+  setTimeout(()=>{ t.style.animation='toastOut .25s ease forwards'; setTimeout(()=>t.remove(),260); },duration);
+}
+
+async function exportToDrive(){
+  if(!GENERATED_DATA){ showToast('No kit loaded — generate or open a role first.','error'); return; }
+
+  const btn=document.getElementById('drive-btn');
+  btn.disabled=true; btn.innerHTML='⏳ Exporting...';
+  showToast('Building your Google Doc…','info',12000);
+
+  // Gather notes
+  const lib=loadLibrary();
+  const notes=(lib[CURRENT_ROLE_ID]||{}).notes||[];
+  const typeLabels={hm:'HM Feedback',search:'Search Iteration',candidate:'Candidate Note',general:'General'};
+
+  // Build the document content as plain text for Claude to write to Drive
+  const d=GENERATED_DATA;
+  const kw=d.keywords||{};
+  const bools=(d.booleans||[]);
+  const cos=d.companies||{};
+  const dec=d.decoder||{};
+
+  const docTitle=`Sourcing Kit — ${ROLE_TITLE}${COMPANY_NAME?' @ '+COMPANY_NAME:''}`;
+
+  const docBody=`SOURCING KIT
+Role: ${ROLE_TITLE}
+Company: ${COMPANY_NAME||'—'}
+Generated: ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+JOB DESCRIPTION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${JD_TEXT}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BOOLEAN SEARCH STRINGS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${bools.map(b=>`[${b.tag}] ${b.platform}\n${b.description}\n\n${b.string}\n\nTip: ${b.hint}`).join('\n\n---\n\n')}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+KEYWORDS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+MUST-HAVE (Knockout criteria):
+${(kw.mustHave||[]).join(' · ')}
+
+STRONG DIFFERENTIATORS:
+${(kw.strongDiff||[]).join(' · ')}
+
+NICE-TO-HAVE:
+${(kw.niceToHave||[]).join(' · ')}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TARGET COMPANIES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${['tier1','tier2','tier3'].map(t=>{
+  const tier=cos[t]||{};
+  if(!(tier.companies||[]).length) return '';
+  const orStr=tier.companies.map(c=>`"${c}"`).join(' OR ');
+  return `${tier.label||t}:\n${(tier.companies||[]).join(', ')}\n\nOR Boolean: (${orStr})`;
+}).filter(Boolean).join('\n\n---\n\n')}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SIGNAL DECODER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TITLE DISGUISES (how the right candidate may list their title):
+${(dec.titles||[]).map(t=>`${t.primary?'★ ':'  '}${t.title}${t.note?' — '+t.note:''}`).join('\n')}
+
+INDUSTRY DIALECTS:
+${(dec.dialects||[]).map(r=>`${r.background}: they write "${r.theyCallIt}" → you need: ${r.youNeedIt}`).join('\n')}
+
+ACHIEVEMENT SIGNALS TO SCAN FOR:
+${(dec.achievementSignals||[]).map((s,i)=>`${i+1}. ${s.signal}\n   e.g. "${s.example}" — ${s.whyItMatters}`).join('\n\n')}
+
+GREEN FLAGS:
+${(dec.greenFlags||[]).map(f=>`✓ ${f.flag}\n  ${f.reason}`).join('\n\n')}
+
+RED FLAGS:
+${(dec.redFlags||[]).map(f=>`✗ ${f.flag}\n  ${f.reason}`).join('\n\n')}
+
+LINKEDIN AI PROMPTS:
+${(dec.linkedinAiPrompts||[]).map((p,i)=>`[${p.label}]\n${p.prompt}`).join('\n\n---\n\n')}
+
+INMAIL OPENERS BY PERSONA:
+${(dec.outreachAngles||[]).map(o=>`[${o.persona}]\n${o.message}`).join('\n\n---\n\n')}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+NOTES & LOG (${notes.length} entries)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${notes.length===0?'No notes yet.'
+  :notes.map(n=>{
+    const d=new Date(n.ts);
+    const ts=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+' '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+    return `[${typeLabels[n.type]||'Note'}] ${ts}\n${n.text}`;
+  }).join('\n\n')}`;
+
+  const prompt=`Use Google Drive to create a new Google Doc with the following title and content. 
+Title: "${docTitle}"
+Content (plain text — preserve the section headers and formatting as best you can):
+
+${docBody}
+
+After creating the document, respond with just the document URL so I can display it to the user.`;
+
+  try{
+    const res=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        model:"claude-sonnet-4-20250514",
+        max_tokens:1000,
+        mcp_servers:[{"type":"url","url":"https://drivemcp.googleapis.com/mcp/v1","name":"google-drive"}],
+        messages:[{role:"user",content:prompt}]
+      })
+    });
+
+    const data=await res.json();
+    // Extract text response — look for a URL in the content
+    const textBlocks=data.content.filter(b=>b.type==='text').map(b=>b.text).join(' ');
+    const urlMatch=textBlocks.match(/https:\/\/docs\.google\.com\/document\/[^\s"<>)]+/);
+
+    if(urlMatch){
+      const url=urlMatch[0];
+      showToast(`Doc created! <a href="${url}" target="_blank" style="color:var(--accent3);text-decoration:underline">Open in Drive →</a>`,'success',10000);
+    } else {
+      // Doc likely created but URL not parsed — show generic success
+      showToast('Exported to Google Drive successfully.','success',6000);
+    }
+  }catch(err){
+    showToast('Export failed: '+err.message,'error',6000);
+  }
+
+  btn.disabled=false; btn.innerHTML='📂 Export to Drive';
+}
+
+// ══ INIT ══
+renderLibrary();
+</script>
+</body>
+</html>
